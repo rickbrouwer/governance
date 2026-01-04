@@ -8,7 +8,7 @@ If you are interested in the current open deprecations, we recommend checking ou
 
 KEDA follows the deprecation strategy of Kubernetes and is allowed to make breaking changes in minor versions after a deprecation period.
 
-The KEDA runtime, which consists of the operator and metric server, will provide support on the deprecated features for 6 months (currently the equivalent of 2 releases) after the deprecation was announced. In the following release, the feature will be removed.
+The KEDA runtime, which consists of the operator and metric server, will provide support on the deprecated features for 2 releases (typically 6 months) after the deprecation was announced. In the following release, the feature will be removed.
 
 Depending on the area of the change, KEDA might not wait the above mentioned deprecation period to introduce a breaking change because one of its dependencies such as Kubernetes or scaler dependencies. However, these are the only exceptions to the rule.
 
@@ -25,13 +25,6 @@ New features in KEDA can be marked as experimental which means end-users can use
 Experimental features are only available for evaluation and *not recommended for production use*.
 
 An overview of experimental features will become available in the documentation and graduation to stable features are communicated in the release notes.
-
-### Autoscaling triggers and their metadata
-
-Until KEDA introduces a [versioning scheme for autoscaling triggers](https://github.com/kedacore/keda/issues/613), it is not allowed to make breaking changes for triggers.
-However, it is allowed to introduce new triggers and features in the same `apiVersion`.
-
-The only exceptions to this rule is when KEDA maintainers decide to remove a scaler as part of our [scaler governance](SCALERS.md). In this case, the scaler will be removed after the above mentioned deprecation period of 2 releases/6 months. The reason for being able to remove scalers is that they are no longer maintained and thus no longer supported.
 
 ### Helm chart
 
@@ -63,15 +56,15 @@ Every deprecation must follow our process described below.
 
 ## Introducing new deprecations
 
-When introducing a new deprecation, it must comply with the following rules:
+When introducing a new deprecation, it must comply with the following rules. This process applies to all KEDA features.
 
 - Every deprecation announcement must be mentioned in the release notes and will be highlighted in the upcoming release(s)
-- Every deprecation announcement is typically for two releases
+- Every deprecation announcement is typically for 2 releases (typically 6 months)
 - Every deprecation announcement must have a warning in the KEDA logs to create awareness
   - We recommend using this as inspiration: `The '{parameter}' setting is DEPRECATED and will be removed in v2.18 - Use '{replacement}' instead`
-  - We recommend using the `deprecatedAnnounce` parameter
+  - We recommend using the `deprecatedAnnounce` tag parameter for triggers
 - Every deprecation announcement must be documented on [`keda.sh`](https://github.com/kedacore/keda-docs) and explicitly mention timelines
-  - We recommend using this as inspiration: # DEPRECATED: This parameter is deprecated as of KEDA v2.16 in favor of {replacement} and will be removed in version 2.18`
+  - We recommend using this as inspiration: `# DEPRECATED: This parameter is deprecated as of KEDA v2.16 in favor of {replacement} and will be removed in version 2.18`
 - Every deprecation announcement must have a representing issue that is used for tracking breaking changes for our upcoming major version.
   - Because of that, it must be labeled with [`breaking-change`](https://github.com/kedacore/keda/issues?q=is%3Aopen+label%3Abreaking-change+sort%3Aupdated-desc)
   - A label will be added to indicate the version in which it will be removed, example `removal:keda-v2.18`.
@@ -79,5 +72,17 @@ When introducing a new deprecation, it must comply with the following rules:
   - It should explain when the deprecation takes effect, what the impact is, how to migrate and when it will be removed.
 - After the period of deprecation announcement, the announcement must be converted to a deprecated status, triggering an error.
   - We recommend using this as inspiration: `The '{parameter}' setting is DEPRECATED and is removed in v2.18 - Use '{replacement}' instead` 
-  - We recommend using the `deprecated` parameter
+  - We recommend using the `deprecated` tag parameter for triggers
   - Every deprecation is typically for two releases and removed after that
+
+### Deprecation lifecycle
+
+The deprecation process follows a multi-release lifecycle:
+
+1. **Releases 1-2 (Announcement phase)**: The feature is marked as deprecated with a warning in the logs stating it "will be removed in vX.XX". During this phase, the feature may still function but users are strongly encouraged to migrate.
+2. **Releases 3-4 (Deprecated phase)**: After the announcement period, the deprecation is converted to a deprecated status, triggering an error in the logs stating it "is removed in vX.XX".
+3. **Release 5+**: The code is completely removed from KEDA.
+
+### Scaler removal
+
+Scalers may be removed as part of our [scaler governance](SCALERS.md) when they are no longer maintained and thus no longer supported. In this case, the scaler will be removed following the standard deprecation process described above.
